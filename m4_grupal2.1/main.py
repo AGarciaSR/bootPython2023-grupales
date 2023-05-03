@@ -43,16 +43,18 @@ def ver_saldo():
     
 # Clases Usuario y subclases
 class Usuario:
-    def __init__(self, id, nombre, password):
+    def __init__(self, id, nombre, apellido, password):
         self.id = id
         self.nombre = nombre
+        self.apellido = apellido
         self.password = password
         
 class Administrativo(Usuario):
-    def __init__(self, id, nombre, password, fecha_incorporacion, oficina, salario):
+    def __init__(self, id, nombre, password, fecha_incorporacion, oficina, salario, fecha_nacimiento = None):
         self.fecha_incorporacion = fecha_incorporacion
         self.oficina = oficina
         self.salario = salario
+        self.fecha_nacimiento = fecha_nacimiento
         super().__init__(id, nombre, password)
         
     # Almacenar nuevos productos
@@ -74,6 +76,8 @@ class Administrativo(Usuario):
             print(f'El producto ya está en nuestro catálogo, se añadieron {cantidad} unidades de {producto}')"""
             
         nuevo_producto = Producto(sku, producto, categoria, proveedor, cantidad, valor_neto)
+        # Composición de la clase Producto, asignándole un proveedor
+        nuevo_producto.proveedor = Proveedor("12345678-9", "Constructores Unidos Ltda.", "Cooperativa de Constructores de Los Ríos Sociedad Limitada", "Chile", "Jurídica")
         listaProductos.append(nuevo_producto)
         time.sleep(2)
     
@@ -98,12 +102,13 @@ class Administrativo(Usuario):
                 print(f'{key}) {clientes[key]["nombre"]}')
         
 class Vendedor(Usuario):
-    def __init__(self, id, nombre, apellido, password, run, fecha_incorporacion, seccion, salario):
+    def __init__(self, id, nombre, apellido, password, run, fecha_incorporacion, salario, seccion = None):
         self.fecha_incorporacion = fecha_incorporacion
         self.seccion = seccion
         self.salario = salario
+        self.run = run
         self.__comision = 0
-        super().__init__(id, nombre, password)
+        super().__init__(id, nombre, apellido, password)
     
     # Añadir unidades a un producto del catálogo
     def actualiza_stock(self):
@@ -159,7 +164,7 @@ class Vendedor(Usuario):
                 print(f'{producto}: {stock[producto]}')
 
 class Cliente(Usuario):
-    def __init__(self, id, nombre, apellido, correo, fecha_registro, password, ciudad, volumen_compra = 0):
+    def __init__(self, id, nombre, apellido, correo, fecha_registro, password, ciudad, volumen_compra = 0, genero = None):
         self.apellido = apellido
         self.correo = correo
         self.fecha_registro = fecha_registro
@@ -216,6 +221,17 @@ class Producto:
         self.stock = stock
         self.valor_neto = valor_neto
         self.__impuesto = 1.19
+        self.proveedor = None
+    
+        
+# Nueva clase Proveedor        
+class Proveedor:
+    def __init__(self, rut, nombre_legal, razon_social, pais, tipo_persona):
+        self.rut = rut
+        self.nombre_legal = nombre_legal
+        self.razon_social = razon_social
+        self.pais = pais
+        self.tipo_persona = tipo_persona
 
 # Creamos los objetos con las nuevas clases
 administrativo = Administrativo('a1','Paulina Fernández','Paulina_1992','2023/03/05','Quilpué',1120000)
