@@ -50,12 +50,12 @@ class Usuario:
         self.password = password
         
 class Administrativo(Usuario):
-    def __init__(self, id, nombre, password, fecha_incorporacion, oficina, salario, fecha_nacimiento = None):
+    def __init__(self, id, nombre, apellido, password, fecha_incorporacion, oficina, salario, fecha_nacimiento = None):
+        super().__init__(id, nombre, apellido, password)
         self.fecha_incorporacion = fecha_incorporacion
         self.oficina = oficina
         self.salario = salario
         self.fecha_nacimiento = fecha_nacimiento
-        super().__init__(id, nombre, password)
         
     # Almacenar nuevos productos
     def ingresa_producto(self):
@@ -163,6 +163,31 @@ class Vendedor(Usuario):
             if stock[producto] > cantidad:
                 print(f'{producto}: {stock[producto]}')
 
+# Metodo para Vender Producto
+    def vender_producto(self):
+        banner('Venta de Producto')
+        print('Seleccione el producto a vender')
+        stockNames = []
+        stockList = []
+        i = 1
+        for key in stock:
+            stockNames.append(key)
+            stockList.append(stock[key])
+            print(f'{i}) {key}')
+            i += 1
+        
+        producto = int(input('Ingrese el número del producto:'))
+        cantidad = int(input('¿Cuántas unidades venderemos?: '))
+        # Input con clientes 
+        banner('Nuestros clientes')
+        for key in clientes:
+            if clientes[key]["nombre"] != '':
+                print(f'{key}) {clientes[key]["nombre"]}')
+        cliente = int(input('¿A que Cliente  le venderemos?: '))
+
+        '''stock[stockNames[producto-1]] = stock[stockNames[producto-1]] + cantidad'''
+        
+
 class Cliente(Usuario):
     def __init__(self, id, nombre, apellido, correo, fecha_registro, password, ciudad, volumen_compra = 0, genero = None):
         self.apellido = apellido
@@ -172,7 +197,7 @@ class Cliente(Usuario):
         self.volumen_compra = volumen_compra
         # Atributo encapsulado
         self.__saldo = 0
-        super().__init__(id, nombre, password)
+        super().__init__(id, nombre, apellido, password)
     
     #Método para añadir saldo    
     def add_saldo(self, ingreso):
@@ -213,11 +238,10 @@ class Cliente(Usuario):
         print(compras)
 
 class Producto:
-    def __init__(self, sku, nombre, categoria, proveedor, stock, valor_neto) -> None:
+    def __init__(self, sku, nombre, categoria, stock, valor_neto) -> None:
         self.sku = sku
         self.nombre = nombre
         self.categoria = categoria
-        self.proveedor = proveedor
         self.stock = stock
         self.valor_neto = valor_neto
         self.__impuesto = 1.19
@@ -234,7 +258,7 @@ class Proveedor:
         self.tipo_persona = tipo_persona
 
 # Creamos los objetos con las nuevas clases
-administrativo = Administrativo('a1','Paulina Fernández','Paulina_1992','2023/03/05','Quilpué',1120000)
+administrativo = Administrativo('a1','Paulina','Fernández','Paulina_1992','2023/03/05','Quilpué',1120000)
 vendedor = Vendedor('v1','Marcos','Pérez','Marcos_45','12345678-9','2023/04/15','Informática',800000)
 cliente = Cliente('1',clientes['1']['nombre'],clientes['1']['apellido'],'cliente1@pruebas.cl','2023/05/02',clientes['1']['password'],clientes['1']['ciudad'],clientes['1']['volumen_compra'])
 cliente2 = Cliente('2',clientes['2']['nombre'],clientes['2']['apellido'],'cliente2@pruebas.cl','2023/05/03',clientes['2']['password'],clientes['2']['ciudad'],clientes['2']['volumen_compra'])
@@ -242,7 +266,9 @@ cliente3 = Cliente('3',clientes['3']['nombre'],clientes['3']['apellido'],'client
 cliente4 = Cliente('4',clientes['4']['nombre'],clientes['4']['apellido'],'cliente4@pruebas.cl','2023/05/05',clientes['4']['password'],clientes['4']['ciudad'],clientes['4']['volumen_compra'])
 cliente5 = Cliente('5',clientes['5']['nombre'],clientes['5']['apellido'],'cliente5@pruebas.cl','2023/05/06',clientes['5']['password'],clientes['5']['ciudad'],clientes['5']['volumen_compra'])
 listaClientes = [cliente,cliente2,cliente3,cliente4,cliente5]
+Producto1= Producto('345675','Polera roja estampada','Vestuario Adulto', )
 listaProductos = []
+
 
 
 functions = ['', administrativo.ingresa_cliente, administrativo.ingresa_producto, vendedor.actualiza_stock, vendedor.muestra_unidades, vendedor.muestra_unidades_producto, cliente.muestra_catalogo, vendedor.productos_mascantidad, administrativo.listado_clientes, ingresa_saldo, ver_saldo, cliente.solicita_compra]
