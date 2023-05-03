@@ -68,7 +68,7 @@ class Administrativo(Usuario):
             
         nuevo_producto = Producto(sku, producto, categoria, cantidad, valor_neto)
         # Composición de la clase Producto, asignándole un proveedor
-        nuevo_producto.proveedor = Proveedor("12345678-9", "Constructores Unidos Ltda.", "Cooperativa de Constructores de Los Ríos Sociedad Limitada", "Chile", "Jurídica")
+        nuevo_producto.proveedor = Proveedor("12345678-9", "La Falsa Polar", "Comercializadora de Productos de Dudoso Origen La Polar SpA", "Chile", "Jurídica")
         stock.append(nuevo_producto)
         print('EL producto ha sido añadido al catálogo')
         time.sleep(2)
@@ -171,7 +171,7 @@ class Vendedor(Usuario):
         productoChoose = int(input('Ingrese el número del producto:'))
         cantidad = int(input('¿Cuántas unidades venderemos?: '))
         # Comprobamos si existen suficientes unidades antes de seguir
-        if cantidad > stockList[productoChoose]:
+        if cantidad > stockList[productoChoose-1]:
             print('No existen suficientes unidades para efectuar la venta')
         else:
             # Input con clientes 
@@ -181,7 +181,7 @@ class Vendedor(Usuario):
                 print(f'{i}) {cliente.nombre}')
                 i += 1
             # Calculamos el valor total de la compra contando comisión del vendedor y el impuesto
-            impuesto = stock[productoChoose-1].getImpuesto()
+            impuesto = stock[productoChoose-1].get_impuesto()
             valorTotal = stock[productoChoose-1].valor_neto * impuesto * cantidad
             comision = valorTotal * 0.005
             
