@@ -1,6 +1,6 @@
 import time,os
 # Stock inicial de productos y clientes
-stock = {'Zapatillas' : 20, 'Poleras' : 10, 'Zapatos' : 15, 'Poleron' : 3, 'Chaqueta' : 5, 'Guantes' : 5}
+stock = []
 clientes = {
     '1' : {'nombre' : 'Alberto', 'apellido' : 'García', 'password' : 'Alberto_1990', 'ciudad' : 'Viña del Mar', 'volumen_compra' : 14990},
     '2' : {'nombre' : 'Jose', 'apellido' : 'Martínez', 'password' : 'Jose_1990', 'ciudad' : 'Viña del Mar', 'volumen_compra' : 11990},
@@ -63,22 +63,14 @@ class Administrativo(Usuario):
         sku = int(input('Ingrese el SKU del nuevo producto: '))
         producto = input('Ingrese el nombre del nuevo producto: ')
         categoria = input('Ingrese la categoría del producto: ')
-        proveedor = input('¿Quién es el proveedor?: ')
         valor_neto = int(input('¿Cuál es el valor del producto?: '))
         cantidad = int(input('¿Cuántas unidades tendremos de este producto?: '))
-        
-        #Trozo antiguo de cuando se trataban los productos en una lista de diccionarios
-        """if producto not in stock:
-            stock.update({producto : cantidad})
-            print('Se añadió el producto al catálogo')
-        else:
-            stock[producto] = stock[producto] + cantidad
-            print(f'El producto ya está en nuestro catálogo, se añadieron {cantidad} unidades de {producto}')"""
             
-        nuevo_producto = Producto(sku, producto, categoria, proveedor, cantidad, valor_neto)
+        nuevo_producto = Producto(sku, producto, categoria, cantidad, valor_neto)
         # Composición de la clase Producto, asignándole un proveedor
         nuevo_producto.proveedor = Proveedor("12345678-9", "Constructores Unidos Ltda.", "Cooperativa de Constructores de Los Ríos Sociedad Limitada", "Chile", "Jurídica")
-        listaProductos.append(nuevo_producto)
+        stock.append(nuevo_producto)
+        print('EL producto ha sido añadido al catálogo')
         time.sleep(2)
     
     # Ingresa nuevo cliente a la "base de datos"
@@ -170,22 +162,39 @@ class Vendedor(Usuario):
         stockNames = []
         stockList = []
         i = 1
-        for key in stock:
-            stockNames.append(key)
-            stockList.append(stock[key])
-            print(f'{i}) {key}')
+        for producto in stock:
+            stockNames.append(producto.nombre)
+            stockList.append(producto.stock)
+            print(f'{i}) {producto.nombre}')
             i += 1
         
-        producto = int(input('Ingrese el número del producto:'))
+        productoChoose = int(input('Ingrese el número del producto:'))
         cantidad = int(input('¿Cuántas unidades venderemos?: '))
-        # Input con clientes 
-        banner('Nuestros clientes')
-        for key in clientes:
-            if clientes[key]["nombre"] != '':
-                print(f'{key}) {clientes[key]["nombre"]}')
-        cliente = int(input('¿A que Cliente  le venderemos?: '))
-
-        '''stock[stockNames[producto-1]] = stock[stockNames[producto-1]] + cantidad'''
+        # Comprobamos si existen suficientes unidades antes de seguir
+        if cantidad > stockList[productoChoose]:
+            print('No existen suficientes unidades para efectuar la venta')
+        else:
+            # Input con clientes 
+            banner('Nuestros clientes')
+            i = 1
+            for cliente in listaClientes:
+                print(f'{i}) {cliente.nombre}')
+                i += 1
+            # Calculamos el valor total de la compra contando comisión del vendedor y el impuesto
+            impuesto = stock[productoChoose-1].getImpuesto()
+            valorTotal = stock[productoChoose-1].valor_neto * impuesto * cantidad
+            comision = valorTotal * 0.005
+            
+            clienteChoose = int(input('¿A que cliente le venderemos?: '))
+            # Comprobar si el cliente tiene saldo suficiente
+            if listaClientes[clienteChoose-1].get_saldo() >= valorTotal:
+                self.__comision += comision
+                listaClientes[clienteChoose-1].mod_saldo(-valorTotal)
+                print('La venta se ha efectuado correctamente. Muchas gracias')
+                time.sleep(2)
+            else:
+                print('El saldo del cliente no es suficiente para efectuar la compra.')
+                time.sleep(2)
         
 
 class Cliente(Usuario):
@@ -196,11 +205,11 @@ class Cliente(Usuario):
         self.ciudad = ciudad
         self.volumen_compra = volumen_compra
         # Atributo encapsulado
-        self.__saldo = 0
+        self.__saldo = 500000
         super().__init__(id, nombre, apellido, password)
     
     #Método para añadir saldo    
-    def add_saldo(self, ingreso):
+    def mod_saldo(self, ingreso):
         self.__saldo += ingreso
         
     #Método para obtener saldo del cliente
@@ -212,7 +221,7 @@ class Cliente(Usuario):
         banner('Nuestro catálogo')
         i = 1
         for key in stock:
-            print(f'{i}) {key}')
+            print(f'{i}) {key.nombre}')
             i += 1
     
     # Solicitar compra. Se pide producto y unidades
@@ -246,6 +255,9 @@ class Producto:
         self.valor_neto = valor_neto
         self.__impuesto = 1.19
         self.proveedor = None
+        
+    def get_impuesto(self):
+        return self.__impuesto
     
         
 # Nueva clase Proveedor        
@@ -266,18 +278,18 @@ cliente3 = Cliente('3',clientes['3']['nombre'],clientes['3']['apellido'],'client
 cliente4 = Cliente('4',clientes['4']['nombre'],clientes['4']['apellido'],'cliente4@pruebas.cl','2023/05/05',clientes['4']['password'],clientes['4']['ciudad'],clientes['4']['volumen_compra'])
 cliente5 = Cliente('5',clientes['5']['nombre'],clientes['5']['apellido'],'cliente5@pruebas.cl','2023/05/06',clientes['5']['password'],clientes['5']['ciudad'],clientes['5']['volumen_compra'])
 listaClientes = [cliente,cliente2,cliente3,cliente4,cliente5]
-Producto1= Producto('345675','Polera roja estampada','Vestuario Adulto', )
-listaProductos = []
+producto1 = Producto('345675', 'Polera roja estampada', 'Vestuario Adulto', 12, 4500)
+stock.append(producto1)
 
 
 
-functions = ['', administrativo.ingresa_cliente, administrativo.ingresa_producto, vendedor.actualiza_stock, vendedor.muestra_unidades, vendedor.muestra_unidades_producto, cliente.muestra_catalogo, vendedor.productos_mascantidad, administrativo.listado_clientes, ingresa_saldo, ver_saldo, cliente.solicita_compra]
+functions = ['', administrativo.ingresa_cliente, administrativo.ingresa_producto, vendedor.actualiza_stock, vendedor.muestra_unidades, vendedor.muestra_unidades_producto, cliente.muestra_catalogo, vendedor.productos_mascantidad, administrativo.listado_clientes, ingresa_saldo, ver_saldo, cliente.solicita_compra, vendedor.vender_producto]
 
 
 while True:
     banner('Bienvenido')
     # Imprimir el menú
-    print('1) Ingresa nuevo cliente\n2) Ingresar nuevo producto\n3) Añadir unidades a producto existente\n4) Mostrar unidades por producto\n5) Ver las unidades de un producto\n6) Muestra el catálogo\n7) Productos con más de X cantidad en stock\n8) Mostrar listado de clientes\n9) Añadir saldo al cliente\n10) Obtener saldo del cliente\n\n11) Efectuar compra\n0) Salir')
+    print('1) Ingresa nuevo cliente\n2) Ingresar nuevo producto\n3) Añadir unidades a producto existente\n4) Mostrar unidades por producto\n5) Ver las unidades de un producto\n6) Muestra el catálogo\n7) Productos con más de X cantidad en stock\n8) Mostrar listado de clientes\n9) Añadir saldo al cliente\n10) Obtener saldo del cliente\n\n11) Efectuar compra\n12) Vender producto\n0) Salir')
     eleccion = int(input('Su elección: '))
     if eleccion == 0:
         print('Gracias, vuelva pronto')
