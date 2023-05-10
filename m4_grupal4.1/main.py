@@ -96,12 +96,12 @@ class Administrativo(Usuario):
         
 class Vendedor(Usuario):
     def __init__(self, id, nombre, apellido, password, run, fecha_incorporacion, salario, seccion = None):
+        super().__init__(id, nombre, apellido, password)
         self.fecha_incorporacion = fecha_incorporacion
         self.seccion = seccion
         self.salario = salario
         self.run = run
         self.__comision = 0
-        super().__init__(id, nombre, apellido, password)
     
     # Añadir unidades a un producto del catálogo
     def actualiza_stock(self):
@@ -185,17 +185,29 @@ class Vendedor(Usuario):
             impuesto = stock[productoChoose-1].get_impuesto()
             valorTotal = stock[productoChoose-1].valor_neto * impuesto * cantidad
             comision = valorTotal * 0.005
-            
-            clienteChoose = int(input('¿A que cliente le venderemos?: '))
-            # Comprobar si el cliente tiene saldo suficiente
-            if listaClientes[clienteChoose-1].get_saldo() >= valorTotal:
-                self.__comision += comision
-                listaClientes[clienteChoose-1].mod_saldo(-valorTotal)
-                print('La venta se ha efectuado correctamente. Muchas gracias')
-                time.sleep(2)
+            # Comprobar que se tiene suficiente stock en la tienda
+            if(stock[productoChoose-1].stock >= cantidad):
+                clienteChoose = int(input('¿A que cliente le venderemos?: '))
+                # Comprobar si el cliente tiene saldo suficiente
+                if listaClientes[clienteChoose-1].get_saldo() >= valorTotal:
+                    self.__comision += comision
+                    listaClientes[clienteChoose-1].mod_saldo(-valorTotal)
+                    print('La venta se ha efectuado correctamente. Muchas gracias')
+                    stock[productoChoose-1].stock -= cantidad
+                    # Si tenemos menos de 50 en la tienda, pedir 300 más a la bodega
+                    if(stock[productoChoose-1].stock < 50):
+                        if (bodega1.stock[stock[productoChoose-1].nombre] >= 300):
+                            bodega1.stock[stock[productoChoose-1].nombre] -= 300
+                            stock[productoChoose-1].stock += 300
+                            print(f"El stock de {stock[productoChoose-1].nombre} es bajo, se están pidiendo 300 más a la bodega")
+                        else:
+                            print(f"El stock de {stock[productoChoose-1].nombre} es bajo, no existen suficientes unidades en la bodega para reponer")
+                    time.sleep(2)
+                else:
+                    print('El saldo del cliente no es suficiente para efectuar la compra.')
+                    time.sleep(2)
             else:
-                print('El saldo del cliente no es suficiente para efectuar la compra.')
-                time.sleep(2)
+                print("No existen suficientes unidades en stock")
         
 
 class Cliente(Usuario):
@@ -259,9 +271,7 @@ class Producto:
         
     def get_impuesto(self):
         return self.__impuesto
-    
-        
-# Nueva clase Proveedor        
+          
 class Proveedor:
     def __init__(self, rut, nombre_legal, razon_social, pais, tipo_persona):
         self.rut = rut
@@ -269,6 +279,13 @@ class Proveedor:
         self.razon_social = razon_social
         self.pais = pais
         self.tipo_persona = tipo_persona
+        
+# Nueva clase Bodega
+class Bodega:
+    def __init__(self, id, nombre, stock = None):
+        self.id = id
+        self.nombre = nombre
+        self.stock = stock
 
 # Creamos los objetos con las nuevas clases
 administrativo = Administrativo('a1','Paulina','Fernández','Paulina_1992','2023/03/05','Quilpué',1120000)
@@ -280,11 +297,12 @@ cliente4 = Cliente('4',clientes['4']['nombre'],clientes['4']['apellido'],'client
 cliente5 = Cliente('5',clientes['5']['nombre'],clientes['5']['apellido'],'cliente5@pruebas.cl','2023/05/06',clientes['5']['password'],clientes['5']['ciudad'],clientes['5']['volumen_compra'])
 listaClientes = [cliente,cliente2,cliente3,cliente4,cliente5]
 producto1 = Producto('345675', 'Polera roja estampada', 'Vestuario Adulto', 12, 4500)
+bodega1 = Bodega('bodega1', 'Bodega Santiago', {'Polera roja estampada' : 900})
 stock.append(producto1)
 
 
 
-functions = ['', administrativo.ingresa_cliente, administrativo.ingresa_producto, vendedor.actualiza_stock, vendedor.muestra_unidades, vendedor.muestra_unidades_producto, cliente.muestra_catalogo, vendedor.productos_mascantidad, administrativo.listado_clientes, ingresa_saldo, ver_saldo, cliente.solicita_compra, vendedor.vender_producto]
+functions = ['', '''administrativo.ingresa_cliente''', administrativo.ingresa_producto, vendedor.actualiza_stock, vendedor.muestra_unidades, vendedor.muestra_unidades_producto, cliente.muestra_catalogo, vendedor.productos_mascantidad, administrativo.listado_clientes, ingresa_saldo, ver_saldo, cliente.solicita_compra, vendedor.vender_producto]
 
 
 while True:
