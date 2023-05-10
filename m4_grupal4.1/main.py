@@ -183,16 +183,21 @@ class Vendedor(Usuario):
                 i += 1
             # Calculamos el valor total de la compra contando comisión del vendedor y el impuesto
             impuesto = stock[productoChoose-1].get_impuesto()
+            calImpuesto=stock[productoChoose-1].valor_neto * 0.19
             valorTotal = stock[productoChoose-1].valor_neto * impuesto * cantidad
             comision = valorTotal * 0.005
+           
             # Comprobar que se tiene suficiente stock en la tienda
             if(stock[productoChoose-1].stock >= cantidad):
                 clienteChoose = int(input('¿A que cliente le venderemos?: '))
+                selDespacho=int(input('¿Desea despacho a Domicilio?(0:no, 1:si)'))
+                sumaDespacho=selDespacho*5000
+                valorTotal+=sumaDespacho
                 # Comprobar si el cliente tiene saldo suficiente
                 if listaClientes[clienteChoose-1].get_saldo() >= valorTotal:
                     self.__comision += comision
                     listaClientes[clienteChoose-1].mod_saldo(-valorTotal)
-                    print('La venta se ha efectuado correctamente. Muchas gracias')
+                    print(f"El Valor Neto es: {stock[productoChoose-1].valor_neto * cantidad}, El Impuesto es: {calImpuesto * cantidad}, El Despacho es : {sumaDespacho} y el Valor Total es : {valorTotal}  ")
                     stock[productoChoose-1].stock -= cantidad
                     # Si tenemos menos de 50 en la tienda, pedir 300 más a la bodega
                     if(stock[productoChoose-1].stock < 50):
@@ -286,6 +291,13 @@ class Bodega:
         self.id = id
         self.nombre = nombre
         self.stock = stock
+#clase OrdenCompra()
+class OrdenCompra():
+    def __init__(self, id_ordencompra, producto, despacho):
+        self.id_ordencompra = id_ordencompra
+        self.producto = producto
+        self.despacho = despacho
+
 
 # Creamos los objetos con las nuevas clases
 administrativo = Administrativo('a1','Paulina','Fernández','Paulina_1992','2023/03/05','Quilpué',1120000)
@@ -299,6 +311,7 @@ listaClientes = [cliente,cliente2,cliente3,cliente4,cliente5]
 producto1 = Producto('345675', 'Polera roja estampada', 'Vestuario Adulto', 12, 4500)
 bodega1 = Bodega('bodega1', 'Bodega Santiago', {'Polera roja estampada' : 900})
 stock.append(producto1)
+
 
 
 
