@@ -67,7 +67,7 @@ class Administrativo(Usuario):
         cantidad = int(input('¿Cuántas unidades tendremos de este producto?: '))
             
         nuevo_producto = Producto(sku, producto, categoria, cantidad, valor_neto)
-        # Composición de la clase Producto, asignándole un proveedor
+        # Composición de la clase Producto, asignándole un proveedor, hardcodeado para la ocasión, pero la idea es crearlo con un método "ingresa_proveedor"
         nuevo_producto.proveedor = Proveedor("12345678-9", "La Falsa Polar", "Comercializadora de Productos de Dudoso Origen La Polar SpA", "Chile", "Jurídica")
         stock.append(nuevo_producto)
         print('El producto ha sido añadido al catálogo')
@@ -123,7 +123,7 @@ class Vendedor(Usuario):
     def muestra_unidades(self):
         banner('Unidades por producto')
         for producto in stock:
-            print(f'{producto}: {stock[producto]}')
+            print(f'{producto.nombre}: {producto.stock}')
             
     # Mostrar unidades de un producto en particular
     def muestra_unidades_producto(self):
@@ -158,46 +158,43 @@ class Vendedor(Usuario):
 
 # Metodo para Vender Producto
     def vender_producto(self):
-        banner('Venta de Producto')
-        print('Seleccione el producto a vender')
+        # Diccionario con los productos que se irán comprando, formando así una colaboración
+        productos_comprados = {}
         stockNames = []
         stockList = []
+        valor_compra = 0
+        # Input con clientes 
+        banner('Nuestros clientes')
         i = 1
-        for producto in stock:
-            stockNames.append(producto.nombre)
-            stockList.append(producto.stock)
-            print(f'{i}) {producto.nombre}')
+        for cliente in listaClientes:
+            print(f'{i}) {cliente.nombre}')
             i += 1
-        
-        productoChoose = int(input('Ingrese el número del producto:'))
-        cantidad = int(input('¿Cuántas unidades venderemos?: '))
-        # Comprobamos si existen suficientes unidades antes de seguir
-        if cantidad > stockList[productoChoose-1]:
-            print('No existen suficientes unidades para efectuar la venta')
-        else:
-            # Input con clientes 
-            banner('Nuestros clientes')
+        clienteChoose = int(input('¿A que cliente le venderemos?: '))
+        while True:
+            banner('Venta de Producto')
+            print('Seleccione el producto a vender')
             i = 1
-            for cliente in listaClientes:
-                print(f'{i}) {cliente.nombre}')
+            for producto in stock:
+                stockNames.append(producto.nombre)
+                stockList.append(producto.stock)
+                print(f'{i}) {producto.nombre}')
                 i += 1
-            # Calculamos el valor total de la compra contando comisión del vendedor y el impuesto
-            impuesto = stock[productoChoose-1].get_impuesto()
-            calImpuesto=stock[productoChoose-1].valor_neto * 0.19
-            valorTotal = stock[productoChoose-1].valor_neto * impuesto * cantidad
-            comision = valorTotal * 0.005
-           
+            productoChoose = int(input('Ingrese el número del producto:'))
+            cantidad = int(input('¿Cuántas unidades venderemos?: '))
+        
             # Comprobar que se tiene suficiente stock en la tienda
             if(stock[productoChoose-1].stock >= cantidad):
-                clienteChoose = int(input('¿A que cliente le venderemos?: '))
-                selDespacho=int(input('¿Desea despacho a Domicilio?(0:no, 1:si)'))
-                sumaDespacho=selDespacho*5000
-                valorTotal+=sumaDespacho
+                # Calculamos el valor total de la compra contando comisión del vendedor y el impuesto
+                # El impuesto lo guardamos como string
+                impuesto = stock[productoChoose-1].get_impuesto()
+                calImpuesto = stock[productoChoose-1].valor_neto * impuesto
+                valorTotal = (stock[productoChoose-1].valor_neto + calImpuesto) * cantidad
+                comision = valorTotal * 0.005
                 # Comprobar si el cliente tiene saldo suficiente
                 if listaClientes[clienteChoose-1].get_saldo() >= valorTotal:
                     self.__comision += comision
                     listaClientes[clienteChoose-1].mod_saldo(-valorTotal)
-                    print(f"El Valor Neto es: {stock[productoChoose-1].valor_neto * cantidad}, El Impuesto es: {calImpuesto * cantidad}, El Despacho es : {sumaDespacho} y el Valor Total es : {valorTotal}  ")
+                    print(f"El Valor Neto es: {stock[productoChoose-1].valor_neto * cantidad}, El Impuesto es: {calImpuesto * cantidad} y el Valor Total es : {valorTotal}  ")
                     stock[productoChoose-1].stock -= cantidad
                     # Si tenemos menos de 50 en la tienda, pedir 300 más a la bodega
                     if(stock[productoChoose-1].stock < 50):
@@ -207,12 +204,28 @@ class Vendedor(Usuario):
                             print(f"El stock de {stock[productoChoose-1].nombre} es bajo, se están pidiendo 300 más a la bodega")
                         else:
                             print(f"El stock de {stock[productoChoose-1].nombre} es bajo, no existen suficientes unidades en la bodega para reponer")
+                    if not stock[productoChoose-1] in productos_comprados:
+                        productos_comprados[stock[productoChoose-1]] = 0
+                    else:
+                        productos_comprados[stock[productoChoose-1]] += cantidad
+                    valor_compra += valorTotal
                     time.sleep(2)
+                    if input("¿Terminar compra? (1: SI): ") == "1":
+                        selDespacho = int(input('¿Desea despacho a Domicilio?(0:no, 1:si)'))
+                        sumaDespacho = selDespacho*5000
+                        valor_compra += sumaDespacho
+                        print(f"El valor total de su compra es: {valor_compra}, con un valor incluido de despacho de {sumaDespacho}")
+                        # "Hardcodearemos" el ID, pero en una BDD, esto se haría con un AUTO_INCREMENT
+                        nueva_orden_compra = OrdenCompra("NuevaOC", productos_comprados, selDespacho, listaClientes[clienteChoose-1].id, valor_compra)
+                        compras.append(nueva_orden_compra)
+                        break
                 else:
                     print('El saldo del cliente no es suficiente para efectuar la compra.')
                     time.sleep(2)
+                    break
             else:
                 print("No existen suficientes unidades en stock")
+                break
         
 
 class Cliente(Usuario):
@@ -271,7 +284,7 @@ class Producto:
         self.categoria = categoria
         self.stock = stock
         self.valor_neto = valor_neto
-        self.__impuesto = 1.19
+        self.__impuesto = 0.19
         self.proveedor = None
         
     def get_impuesto(self):
@@ -293,10 +306,12 @@ class Bodega:
         self.stock = stock
 #clase OrdenCompra()
 class OrdenCompra():
-    def __init__(self, id_ordencompra, producto, despacho):
+    def __init__(self, id_ordencompra, productos, despacho, id_usuario, valor_total):
         self.id_ordencompra = id_ordencompra
-        self.producto = producto
+        self.productos = productos
         self.despacho = despacho
+        self.id_usuario = id_usuario
+        self.valor_total = valor_total
 
 
 # Creamos los objetos con las nuevas clases
@@ -321,7 +336,7 @@ functions = ['', '''administrativo.ingresa_cliente''', administrativo.ingresa_pr
 while True:
     banner('Bienvenido')
     # Imprimir el menú
-    print('1) Ingresa nuevo cliente\n2) Ingresar nuevo producto\n3) Añadir unidades a producto existente\n4) Mostrar unidades por producto\n5) Ver las unidades de un producto\n6) Muestra el catálogo\n7) Productos con más de X cantidad en stock\n8) Mostrar listado de clientes\n9) Añadir saldo al cliente\n10) Obtener saldo del cliente\n\n11) Efectuar compra\n12) Vender producto\n0) Salir')
+    print('1) Ingresa nuevo cliente\n2) Ingresar nuevo producto\n3) Añadir unidades a producto existente\n4) Mostrar unidades por producto\n5) Ver las unidades de un producto\n6) Muestra el catálogo\n7) Productos con más de X cantidad en stock\n8) Mostrar listado de clientes\n9) Añadir saldo al cliente\n10) Obtener saldo del cliente\n\n11) Efectuar compra\n12) Vender producto (El método para esta actividad)\n0) Salir')
     eleccion = int(input('Su elección: '))
     if eleccion == 0:
         print('Gracias, vuelva pronto')
