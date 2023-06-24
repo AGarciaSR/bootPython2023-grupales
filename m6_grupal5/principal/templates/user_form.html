@@ -1,0 +1,14 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    {% if request.user.is_staff%}
+        <h1 id="titulo">Ingresando un nuevo usuario</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+            <input class="btn btn-success" type="submit" value="Enviar datos">
+        </form>
+    {% else %}
+        <h1 id="titulo">Lo sentimos, pero no tiene permisos para ver esta página</h1>
+    {% endif %}
+{% endblock  %}

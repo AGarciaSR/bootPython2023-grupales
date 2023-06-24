@@ -1,0 +1,11 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+<h1 id="titulo">Qué bueno verte de nuevo, {{ request.user.first_name }}</h1>
+{% else %}
+<h1 id="titulo">Bienvenidos a la nueva Te Lo Vendo</h1>
+{% endif %}
+
+{% endblock  %}
