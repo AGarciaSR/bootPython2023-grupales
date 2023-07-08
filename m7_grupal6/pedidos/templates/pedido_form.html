@@ -1,0 +1,14 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    {% if request.user.is_staff%}
+        <h1 id="titulo">Ingresando un nuevo usuario</h1>
+    {% else %}
+        <h1 id="titulo">Regístrese para usar la aplicación</h1>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="btn btn-success" type="submit" value="Enviar datos">
+    </form>
+{% endblock  %}

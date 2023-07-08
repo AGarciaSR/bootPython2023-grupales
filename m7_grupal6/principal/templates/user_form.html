@@ -1,0 +1,47 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    {% if request.user.is_staff%}
+        <h1 id="titulo">Ingresando un nuevo usuario</h1>
+    {% else %}
+        <h1 id="titulo">Regístrese para usar la aplicación</h1>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Nombre de usuario</label><br>
+            {{ form.username }}
+        </div>
+        <div class="form-group">
+            <label for="first_name">Nombre</label><br>
+            {{form.first_name}}
+        </div>
+        <div class="form-group">
+            <label for="last_name">Apellidos</label><br>
+            {{form.last_name}}
+        </div>
+        <div class="form-group">
+            <label for="password">Contraseña</label><br>
+            {{form.password}}
+        </div>
+        <div class="form-group">
+            <label for="email">Correo electrónico</label><br>
+            {{form.email}}
+        </div>
+        <div class="form-group">
+            <label for="edad">Edad</label><br>
+            {{form.edad}}
+        </div>
+        <div class="form-group">
+            <label for="ciudad">Ciudad de residencia</label><br>
+            {{form.ciudad}}
+        </div>
+        {% if request.user.is_staff %}
+            <div class="form-group">
+                <label for="group">Grupo de usuarios</label><br>
+                {{form.group}}
+            </div>
+        {% endif %}
+        <input class="btn btn-success" type="submit" value="Enviar datos">
+    </form>
+{% endblock  %}

@@ -1,0 +1,20 @@
+body{
+    background-color: coral;
+}
+#user-display{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+}
+footer a{
+    transition-duration: 0.5s;
+}
+footer a:hover{
+    color: white !important;
+}
+#titulo{
+    text-align: center;
+}
+.centered{
+    text-align: center;
+}
