@@ -1,0 +1,33 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+        {% if request.user.is_staff %}
+            <h1 id="titulo">Pedidos ingresados en sistema</h1>
+            <div id="new_user_btn" class="row centered justify-content-center">
+                <div class="col-md-3">
+                    <a class="btn btn-primary" href="{% url 'pedido_form' %}">Ingresar un nuevo pedido</a>
+                </div>
+            </div>
+        {% else %}
+            <h1 id="titulo">Sus pedidos en sistema</h1>
+            <a class="btn btn-primary" href="{% url 'pedido_cliente' %}">Realizar un pedido</a>
+        {% endif %}
+        <div id="pedido-display">
+            {% for pedido in pedidos %}
+                <div class="card user-card" style="width: 18rem;">
+                    <div class="card-body">
+                        <a href="{% url 'pedido_detail' pedido.id %}">
+                            <h5 class="card-title">{{ pedido.usuario.first_name }} {{ pedido.usuario.last_name }}</h5>
+                        </a>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ pedido.dir_entrega }}</h6>
+                        <h6 class="card-subtitle mb-2">{{ pedido.estado }}</h6>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if not request.user.is_authenticated %}
+        <h1 id="titulo">Lo sentimos, pero no tiene permisos para ver esta página</h1>
+    {% endif %}
+{% endblock  %}

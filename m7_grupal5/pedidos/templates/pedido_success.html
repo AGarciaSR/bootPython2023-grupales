@@ -1,0 +1,9 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+        <h1 id="titulo">El pedido ha sido {{operacion}} satisfactoriamente</h1>
+    {% else %}
+        <h1 id="titulo">Lo sentimos, pero no tiene permisos para ver esta página</h1>
+    {% endif %}
+{% endblock  %}

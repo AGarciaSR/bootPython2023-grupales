@@ -1,0 +1,36 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+        <h1 id="titulo">Datos del pedido</h1>
+        <div id="user-display">
+            <div class="card user-card" style="width: 50rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Nombre cliente: {{ pedido.0.usuario.first_name }} {{ pedido.0.usuario.last_name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Dirección: {{ pedido.0.dir_entrega }}</h6>
+                    <h6 class="card-subtitle mb-2">Forma de pago: {{ pedido.0.forma_pago }}</h6>
+                    <h6 class="card-subtitle mb-2">Estado: {{ pedido.0.estado }}</h6>
+                    {% if request.user.is_staff %}
+                        <h6 class="card-subtitle mb-2">Gestionado: {{ pedido.0.gestionado }}</h6>
+                    {% endif %}
+                    <p class="card-text">
+                        <h3>Productos</h3><br>
+                        {% for producto in productos %}
+                            <b>{{producto.comprado.nombre}}:</b> {{ producto.cantidad}}<br>
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% if request.user.is_staff %}
+            <h4>Editar el estado del pedido</h4>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{pedido.0.id}}"/>
+                Estado: {{ form.estado }}
+                <input class="btn btn-success" type="submit" value="Enviar datos">
+        {% endif %}
+    {% else %}
+        <h1 id="titulo">Lo sentimos, pero no tiene permisos para ver esta página</h1>
+    {% endif %}
+{% endblock  %}
