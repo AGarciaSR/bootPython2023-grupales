@@ -1,0 +1,34 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+        <h1 id="titulo">Los usuarios</h1>
+
+        <div id="user-display">
+            {% for usuario in appusers %}
+                <div class="card user-card" style="width: 18rem;">
+                    <div class="card-body">
+                        <a href="{% url 'user_detail' usuario.id %}">
+                            <h5 class="card-title">{{ usuario.first_name }} {{ usuario.last_name }}</h5>
+                        </a>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ usuario.username }}</h6>
+                        <h6 class="card-subtitle mb-2">{{ usuario.email }}</h6>
+                        <p class="card-text">
+                            Ciudad: {{ usuario.appuser.ciudad }}<br>
+                            Edad: {{ usuario.appuser.edad }}
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% if request.user.is_staff%}
+            <div id="new_user_btn" class="row centered justify-content-center">
+                <div class="col-md-3">
+                    <a class="btn btn-primary" href="{% url 'user_form' %}">Añadir un nuevo usuario</a>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <h1 id="titulo">Lo sentimos, pero no tiene permisos para ver esta página</h1>
+    {% endif %}
+{% endblock  %}

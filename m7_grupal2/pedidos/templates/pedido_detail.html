@@ -1,0 +1,25 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+        <h1 id="titulo">Datos del pedido</h1>
+
+        <div id="user-display">
+            <div class="card user-card" style="width: 50rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Nombre cliente: {{ pedido.0.usuario.first_name }} {{ pedido.0.usuario.last_name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Dirección: {{ pedido.0.dir_entrega }}</h6>
+                    <h6 class="card-subtitle mb-2">Forma de pago: {{ pedido.0.forma_pago }}</h6>
+                    <h6 class="card-subtitle mb-2">Estado: {{ pedido.0.estado }}</h6>
+                    <h6 class="card-subtitle mb-2">Gestionado: {{ pedido.0.gestionado }}</h6>
+                    <p class="card-text">
+                        <b>Productos</b>
+                        {{ pedido.0.productos}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h1 id="titulo">Lo sentimos, pero no tiene permisos para ver esta página</h1>
+    {% endif %}
+{% endblock  %}
